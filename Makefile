@@ -6,7 +6,7 @@ deploy:
 		git checkout $(BRANCH); \
 		git reset --hard origin/$(BRANCH)"
 
-build:
+restart:
 	ssh isucon12-qualify-1 "sudo systemctl restart isuports.service"
 
 mysql-deploy:
@@ -51,14 +51,15 @@ alp:
 
 .PHONY: pprof
 pprof: pprof-build pprof-request
+
 pprof-build:
 	ssh isucon12-qualify-1 " \
 		cd /home/isucon/webapp/go/cmd/isuports; \
-		rm -f pprof-isuports; \
-		/usr/local/go/bin/go build -o pprof-isuports"
+		/usr/bin/go build -o isuports"
+
 pprof-request:
 	ssh isucon12-qualify-1 " \
-		/usr/local/go/bin/go tool pprof -seconds=75 /home/isucon/webapp/go/isuports/pprof-isuports http://localhost:6060/debug/pprof/profile"
+		/usr/bin/go tool pprof -seconds=75 /home/isucon/webapp/go/cmd/isuports/isuports http://localhost:6060/debug/pprof/profile"
 
 pprof-kill:
 	ssh isucon12-qualify-1 "pgrep -f 'pprof' | xargs kill;"
