@@ -6,17 +6,25 @@ deploy:
 		git checkout $(BRANCH); \
 		git reset --hard origin/$(BRANCH)"
 
+build:
+	ssh isucon12-qualify-1 " \
+		cd /home/isucon/webapp/go/cmd/isuports; \
+		/usr/bin/go build -o isuports"
+
 restart:
 	ssh isucon12-qualify-1 "sudo systemctl restart isuports.service"
 
 mysql-deploy:
-	ssh isucon12-qualify-2 "sudo dd of=/etc/mysql/mysql.conf.d/mysqld.cnf" < ./etc/mysql/mysql.conf.d/mysqld.cnf
+	ssh isucon12-qualify-1 "sudo dd of=/etc/mysql/mysql.conf.d/mysqld.cnf" < ./etc/mysql/mysql.conf.d/mysqld.cnf
 
 mysql-rotate:
-	ssh isucon12-qualify-2 "sudo rm -f /var/log/mysql/mysql-slow.log"
+	ssh isucon12-qualify-1 "sudo rm -f /var/log/mysql/mysql-slow.log"
 
 mysql-restart:
-	ssh isucon12-qualify-2 "sudo systemctl restart mysql.service"
+	ssh isucon12-qualify-1 "sudo systemctl restart mysql.service"
+
+nginx-deploy:
+	ssh isucon12-qualify-1 "sudo dd of=/etc/nginx/nginx.conf" < ./etc/nginx/nginx.conf
 
 nginx-rotate:
 	ssh isucon12-qualify-1 "sudo rm -f /var/log/nginx/access.log"
@@ -50,21 +58,14 @@ alp:
 	ssh isucon12-qualify-1 "sudo alp ltsv --file=/var/log/nginx/access.log --nosave-pos --pos /tmp/alp.pos --sort $(ALPSORT) --reverse -o $(OUTFORMAT) -m $(ALPM) -q"
 
 .PHONY: pprof
-pprof: pprof-build pprof-request
-
-pprof-build:
-	ssh isucon12-qualify-1 " \
-		cd /home/isucon/webapp/go/cmd/isuports; \
-		/usr/bin/go build -o isuports"
-
-pprof-request:
+pprof:
 	ssh isucon12-qualify-1 " \
 		/usr/bin/go tool pprof -seconds=75 /home/isucon/webapp/go/cmd/isuports/isuports http://localhost:6060/debug/pprof/profile"
-
-pprof-kill:
-	ssh isucon12-qualify-1 "pgrep -f 'pprof' | xargs kill;"
 
 pprof-show:
 	$(eval latest := $(shell ssh isucon12-qualify-1 "ls -rt ~/pprof/ | tail -n 1"))
 	scp isucon12-qualify-1:~/pprof/$(latest) ./pprof
 	go tool pprof -http=":1080" ./pprof/$(latest)
+
+pprof-kill:
+	ssh isucon12-qualify-1 "pgrep -f 'pprof' | xargs kill;"
