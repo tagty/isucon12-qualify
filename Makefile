@@ -34,7 +34,7 @@ bench:
 		./bench -target-addr 172.31.45.93:443"
 
 pt-query-digest:
-	ssh isucon12-qualify-2 "sudo pt-query-digest --limit 10 /var/log/mysql/mysql-slow.log"
+	ssh isucon12-qualify-1 "sudo pt-query-digest --limit 10 /var/log/mysql/mysql-slow.log"
 
 ALPSORT=sum
 # /api/player/competition/[0-9a-z]+/ranking
