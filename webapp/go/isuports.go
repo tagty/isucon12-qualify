@@ -194,7 +194,7 @@ func Run() {
 	defer adminDB.Close()
 
 	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
+		log.Print(http.ListenAndServe("localhost:6060", nil))
 	}()
 
 	port := getEnv("SERVER_APP_PORT", "3000")
