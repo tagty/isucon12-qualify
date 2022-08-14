@@ -1131,12 +1131,11 @@ func competitionScoreHandler(c echo.Context) error {
 		)
 	}
 
-	// / DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
-	fl, err := flockByTenantID(v.tenantID)
+	tx, err := tenantDB.Beginx()
 	if err != nil {
-		return fmt.Errorf("error flockByTenantID: %w", err)
+		return fmt.Errorf("error tenantDB Beginx: %w", err)
 	}
-	defer fl.Close()
+	defer tx.Rollback()
 
 	if _, err := tenantDB.ExecContext(
 		ctx,
@@ -1155,6 +1154,11 @@ func competitionScoreHandler(c echo.Context) error {
 		return fmt.Errorf(
 			"error Insert player_score: %w", err,
 		)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error tx Commit: %w", err)
 	}
 
 	return c.JSON(http.StatusOK, SuccessResult{
