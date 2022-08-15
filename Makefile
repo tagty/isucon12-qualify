@@ -45,13 +45,13 @@ pt-query-digest:
 	ssh isucon12-qualify-1 "sudo pt-query-digest --limit 10 /var/log/mysql/mysql-slow.log"
 
 ALPSORT=sum
-# /api/player/competition/[0-9a-z]+/ranking
+# /api/player/competition/[0-9a-z\-]+/ranking
 # /api/player/player/[0-9a-z]+
-# /api/organizer/competition/[0-9a-z]+/finish
-# /api/organizer/competition/[0-9a-z]+/score
-# /api/organizer/player/[0-9a-z]+/disqualified
+# /api/organizer/competition/[0-9a-z\-]+/finish
+# /api/organizer/competition/[0-9a-z\-]+/score
+# /api/organizer/player/[0-9a-z\-]+/disqualified
 # /api/admin/tenants/billing
-ALPM=/api/player/competition/[0-9a-z]+/ranking,/api/player/player/[0-9a-z]+,/api/organizer/competition/[0-9a-z]+/finish,/api/organizer/competition/[0-9a-z]+/score,/api/organizer/player/[0-9a-z]+/disqualified,/api/admin/tenants/billing
+ALPM=/api/player/competition/[0-9a-z\-]+/ranking,/api/player/player/[0-9a-z]+,/api/organizer/competition/[0-9a-z\-]+/finish,/api/organizer/competition/[0-9a-z\-]+/score,/api/organizer/player/[0-9a-z\-]+/disqualified,/api/admin/tenants/billing
 OUTFORMAT=count,method,uri,min,max,sum,avg,p99
 
 alp:
