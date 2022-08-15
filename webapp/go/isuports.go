@@ -1124,11 +1124,18 @@ func competitionScoreHandler(c echo.Context) error {
 		)
 	}
 
-	tx, err := tenantDB.Beginx()
+	// / DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
+	fl, err := flockByTenantID(v.tenantID)
 	if err != nil {
-		return fmt.Errorf("error tenantDB Beginx: %w", err)
+		return fmt.Errorf("error flockByTenantID: %w", err)
 	}
-	defer tx.Rollback()
+	defer fl.Close()
+
+	// tx, err := tenantDB.Beginx()
+	// if err != nil {
+	// 	return fmt.Errorf("error tenantDB Beginx: %w", err)
+	// }
+	// defer tx.Rollback()
 
 	if _, err := tenantDB.ExecContext(
 		ctx,
@@ -1149,10 +1156,10 @@ func competitionScoreHandler(c echo.Context) error {
 		)
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return fmt.Errorf("error tx Commit: %w", err)
-	}
+	// err = tx.Commit()
+	// if err != nil {
+	// 	return fmt.Errorf("error tx Commit: %w", err)
+	// }
 
 	return c.JSON(http.StatusOK, SuccessResult{
 		Status: true,
